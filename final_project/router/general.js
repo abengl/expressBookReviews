@@ -4,6 +4,7 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
+//Task 6: POST to register a new user
 public_users.post("/register", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -28,44 +29,98 @@ public_users.post("/register", (req, res) => {
   });
 });
 
-// Get the book list available in the shop
+//Task 1: GET the book list available in the shop
+//Task 10: GET the book list using Promise callbacks
 public_users.get("/", function (req, res) {
-  res.send(JSON.stringify(books, null, 4));
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(JSON.stringify(books, null, 4));
+    }, 1000);
+  })
+    .then((books) => {
+      res.send(books);
+    })
+    .catch((error) => {
+      res.status(500).send("Error retrieving book list");
+    });
 });
 
-// Get book details based on ISBN
+//Task 2:  GET book details based on ISBN
+//Task 11: GET book details using Promise callbacks
 public_users.get("/isbn/:isbn", function (req, res) {
-  let isbn = req.params.isbn;
-  res.send(books[isbn]);
+  const isbn = req.params.isbn;
+
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const bookDetails = books[isbn];
+      if (bookDetails) {
+        resolve(bookDetails);
+      } else {
+        reject("Book not found.");
+      }
+    }, 1000);
+  })
+    .then((bookDetails) => {
+      res.send(bookDetails);
+    })
+    .catch((error) => {
+      res.status(400).send(error);
+    });
 });
 
-// Get book details based on author
+//Task 3: GET book details based on author
+//Task 12: GET book details by author using Promise callbacks
 public_users.get("/author/:author", function (req, res) {
   const author = req.params.author;
-  let matching_author = [];
 
-  for (let key in books) {
-    if (books[key].author === author) {
-      matching_author.push(books[key]);
-    }
-  }
-  res.send(matching_author);
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const matching_author = [];
+
+      for (let key in books) {
+        if (books[key].author === author) {
+          matching_author.push(books[key]);
+        }
+      }
+
+      resolve(matching_author);
+    }, 1000);
+  })
+    .then((matching_author) => {
+      res.send(matching_author);
+    })
+    .catch((error) => {
+      res.status(500).send("Error retrieving book details");
+    });
 });
 
-// Get all books based on title
+//Task 4: GET books based on title
+//Task 13: GET book by title using Promise callbacks
+
 public_users.get("/title/:title", function (req, res) {
   const title = req.params.title;
-  let matching_books = [];
 
-  for (let key in books) {
-    if (books[key].title === title) {
-      matching_books.push(books[key]);
-    }
-  }
-  res.send(matching_books);
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const matching_books = [];
+
+      for (let key in books) {
+        if (books[key].title === title) {
+          matching_books.push(books[key]);
+        }
+      }
+      resolve(matching_books);
+    }, 1000);
+  })
+    .then((matching_books) => {
+      res.send(matching_books);
+    })
+    .catch((error) => {
+      res.status(500).send("Error retrieving books");
+    });
 });
 
-//  Get book review
+//Task 5: GET book reviews by ISBN
 public_users.get("/review/:isbn", function (req, res) {
   const isbn = req.params.isbn;
   res.send(books[isbn].reviews);
