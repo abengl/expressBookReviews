@@ -59,8 +59,49 @@ regd_users.post("/login", (req, res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({ message: "Yet to be implemented" });
+  const isbn = req.params.isbn;
+  const reviews = books[isbn].reviews;
+
+  const username = req.body.username;
+  const message = req.body.message;
+  const newReview = {
+    name: username,
+    review: message,
+  };
+
+  if (!message) {
+    return res.status(404).json({ message: "Review message is empty." });
+  }
+
+  let userReviewed = false;
+
+  for (const reviewId in reviews) {
+    const review = reviews[reviewId];
+    if (review.name === username) {
+      review.review = message;
+      userReviewed = true;
+      return res.status(200).send("Review successfully updated");
+    }
+  }
+  if (!userReviewed) {
+    const reviewId = Object.keys(reviews).length + 1;
+    reviews[reviewId] = newReview;
+    return res.status(200).send("Review successfully added");
+  }
+});
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const isbn = req.params.isbn;
+  const reviews = books[isbn].reviews;
+
+  const username = req.body.username;
+
+  for (const reviewId in reviews) {
+    if (reviews[reviewId].name === username) {
+      delete reviews[reviewId];
+      return res.status(200).send("Review successfully deleted");
+    }
+  }
 });
 
 module.exports.authenticated = regd_users;
